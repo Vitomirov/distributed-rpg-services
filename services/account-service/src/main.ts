@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 
 app.get("/health", (_req: Request, res: Response) => {
-  res.json({ status: "ok", service: "account" });
+  res.json({service: "account-service", status: "ok"  });
 });
 
 app.use("/api/auth", authRoutes);
