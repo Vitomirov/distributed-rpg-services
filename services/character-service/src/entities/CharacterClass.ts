@@ -9,14 +9,14 @@ import { Character } from "./Character";
 @Entity()
 export class CharacterClass {
   @PrimaryGeneratedColumn("uuid")
-  id?: string;
+  id!: string;
 
   @Column({ unique: true })
-  name?: string;
+  name!: string;
 
   @Column()
-  description?: string;
+  description!: string;
 
   @OneToMany(() => Character, character => character.characterClass)
-  characters?: Character[];
+  characters!: Character[];
 }

@@ -10,14 +10,14 @@ import { Item } from "./Item";
 @Entity()
 export class CharacterItem {
   @PrimaryGeneratedColumn("uuid")
-  id?: string;
+  id!: string;
 
   @ManyToOne(() => Character, character => character.items)
-  character?: Character;
+  character!: Character;
 
   @ManyToOne(() => Item, { eager: true })
-  item?: Item;
+  item!: Item;
 
   @CreateDateColumn()
-  acquiredAt?: Date;
+  acquiredAt!: Date;
 }

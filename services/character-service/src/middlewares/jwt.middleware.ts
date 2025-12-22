@@ -25,10 +25,11 @@ export function jwtMiddleware(
       process.env.JWT_SECRET as string
     ) as JwtPayload;
 
-    req.user = {
-      id: payload.userId,
-      role: payload.role
-    };
+
+(req as any).user = {
+  userId: payload.userId,
+  role: payload.role
+};
 
     next();
   } catch (err) {

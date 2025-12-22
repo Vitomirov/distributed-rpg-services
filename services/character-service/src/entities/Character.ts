@@ -11,35 +11,35 @@ import { CharacterItem } from "./CharacterItem";
 @Entity()
 export class Character {
   @PrimaryGeneratedColumn("uuid")
-  id?: string;
+  id!: string;
 
   @Column({ unique: true })
-  name?: string;
+  name!: string;
 
   @Column()
-  health?: number;
+  health!: number;
 
   @Column()
-  mana?: number;
+  mana!: number;
 
   @Column()
-  baseStrength?: number;
+  baseStrength!: number;
 
   @Column()
-  baseAgility?: number;
+  baseAgility!: number;
 
   @Column()
-  baseIntelligence?: number;
+  baseIntelligence!: number;
 
   @Column()
-  baseFaith?: number;
+  baseFaith!: number;
 
   @Column()
-  createdBy?: string; // userId from JWT
+  createdBy!: string; // userId from JWT
 
   @ManyToOne(() => CharacterClass, (cls: CharacterClass) => cls.characters, { eager: true })
-  characterClass?: CharacterClass;
+  characterClass!: CharacterClass;
 
   @OneToMany(() => CharacterItem, (ci: CharacterItem) => ci.character)
-  items?: CharacterItem[];
+  items!: CharacterItem[];
 }

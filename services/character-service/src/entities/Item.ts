@@ -3,23 +3,23 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 @Entity()
 export class Item {
   @PrimaryGeneratedColumn("uuid")
-  id?: string;
+  id!: string;
 
   @Column()
-  name?: string;
+  name!: string;
 
   @Column()
-  description?: string;
+  description!: string;
 
   @Column({ default: 0 })
-  bonusStrength?: number;
+  bonusStrength!: number;
 
   @Column({ default: 0 })
-  bonusAgility?: number;
+  bonusAgility!: number;
 
   @Column({ default: 0 })
-  bonusIntelligence?: number;
+  bonusIntelligence!: number;
 
   @Column({ default: 0 })
-  bonusFaith?: number;
+  bonusFaith!: number;
 }
