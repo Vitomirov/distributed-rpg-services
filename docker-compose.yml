@@ -19,6 +19,16 @@ services:
     ports:
       - "5432:5432"
 
+  combat-db:
+    image: postgres:15
+    container_name: combat-db
+    environment:
+      POSTGRES_DB: combat_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"    
+
   redis:
     image: redis:7
     container_name: redis
@@ -43,3 +53,13 @@ services:
     depends_on:
       - character-db
       - redis
+
+  combat-service:
+    build: ./services/combat-service
+    container_name: combat-service
+    ports:
+      - "3003:3000"
+    env_file: ./services/combat-service/.env
+    depends_on:
+      - combat-db
+      - redis    
