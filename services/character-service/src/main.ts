@@ -30,7 +30,7 @@ async function startServer() {
       await connectRedis();
       console.log("Redis connected");
 
-      console.log("🚀 Checking migrations...");
+      console.log("Checking migrations...");
       await AppDataSource.runMigrations();
       console.log("Migrations complete");
 

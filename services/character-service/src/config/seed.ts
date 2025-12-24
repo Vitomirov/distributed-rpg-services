@@ -3,7 +3,7 @@ import { CharacterClass } from "../entities/CharacterClass";
 import { Item } from "../entities/Item";
 
 export async function seedDatabase() {
-  console.log("🛠️  SEED: Starting..."); 
+  console.log("SEED: Starting..."); 
   
   const classRepo = AppDataSource.getRepository(CharacterClass);
   const itemRepo = AppDataSource.getRepository(Item);
@@ -11,7 +11,7 @@ export async function seedDatabase() {
   
   const warriorExists = await classRepo.findOneBy({ name: "Warrior" });
   if (!warriorExists) {
-    console.log("🌱 SEED: Inserting Warrior & Mage...");
+    console.log("SEED: Inserting Warrior & Mage...");
     await classRepo.insert([
       { id: "69c56550-b39a-440a-a84f-830ca734cfb6", name: "Warrior", description: "Heavy damage dealer" },
       { id: "a1b2c3d4-e5f6-4012-8345-6789abcdef01", name: "Mage", description: "Powerful magic user" }
@@ -21,7 +21,7 @@ export async function seedDatabase() {
   
   const itemExists = await itemRepo.findOneBy({ name: "Dragon Slayer" });
   if (!itemExists) {
-    console.log("⚔️ SEED: Inserting Items...");
+    console.log("SEED: Inserting Items...");
     await itemRepo.insert([
       {
         id: "b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e",
@@ -39,5 +39,5 @@ export async function seedDatabase() {
       }
     ]);
   }
-  console.log("✅ SEED: Finished!");
+  console.log("SEED: Finished!");
 }

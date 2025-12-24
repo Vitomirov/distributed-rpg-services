@@ -1,5 +1,3 @@
-// item.logic.test.ts (Primeri unit testova)
-
 describe("Item Service Logic", () => {
   
   // TEST 1: Naming Suffix Logic

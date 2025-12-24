@@ -1,0 +1,8 @@
+{
+  "name": "zentrix-rpg-root",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "npm test --prefix services/character-service",
+    "simulation": "bash simulate_rpg.sh"
+  }
+}
