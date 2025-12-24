@@ -11,6 +11,12 @@ export class Duel {
   @Column()
   defenderId!: string;
 
+  @Column()
+  attackerUserId!: string;
+  
+  @Column()
+  defenderUserId!: string;
+
   @Column("int") attackerHp!: number;
   @Column("int") defenderHp!: number;
   @Column("int") attackerStr!: number;
@@ -21,6 +27,7 @@ export class Duel {
   @Column("int") defenderInt!: number;
   @Column("int") attackerFaith!: number;
   @Column("int") defenderFaith!: number;
+
 
   // Cooldown tracking
   @Column({ type: "timestamp", nullable: true }) lastAttackAt!: Date;

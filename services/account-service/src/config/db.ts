@@ -12,7 +12,7 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: true,
   entities: [User],
-  migrations: [path.join(__dirname, "..", "migrations", "*.ts")],
+migrations: [path.join(__dirname, "..", "migrations", "*.{ts,js}")],
 });
 
 export async function initializeDB() {

@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import express from "express";
 import * as dotenv from "dotenv";
-import { AppDataSource } from "./config/db";
+import { AppDataSource, initializeDB } from "./config/db";
 import combatRoutes from "./modules/combat/combat.routes";
 
 // Load environment variables
@@ -17,9 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 async function startServer() {
   try {
-    // Initialize Database Connection
-    await AppDataSource.initialize();
-    console.log("Combat Database has been initialized!");
+    await initializeDB(); 
 
     app.listen(PORT, () => {
       console.log(`Combat Service is running on port ${PORT}`);

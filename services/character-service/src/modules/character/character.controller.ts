@@ -66,7 +66,11 @@ export async function getAllCharacters(req: Request, res: Response) {
         id: true,
         name: true,
         health: true,
-        mana: true
+        mana: true,
+        baseStrength: true,
+        baseAgility: true,
+        baseIntelligence: true,
+        baseFaith: true
       }
     });
 
@@ -120,8 +124,12 @@ export async function getCharacterById(req: Request, res: Response) {
 
     const result = { 
       ...character, 
-      calculatedStats: { strength, agility, intelligence, faith } 
-    };
+      strength, 
+      agility, 
+      intelligence, 
+      faith,
+  calculatedStats: { strength, agility, intelligence, faith } 
+};
 
     await redisClient.setEx(cacheKey, 3600, JSON.stringify(result));
 
