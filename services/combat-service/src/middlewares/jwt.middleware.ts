@@ -1,16 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { JwtPayload, AuthRequest } from "@shared/types";
 
-interface JwtPayload {
-  userId: string;
-  role: "User" | "GameMaster";
-}
-
-export function jwtMiddleware(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export const jwtMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+  // Pristupamo headerima preko req.headers jer je AuthRequest prosireni Request
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -20,19 +13,19 @@ export function jwtMiddleware(
   const token = authHeader.split(" ")[1];
 
   try {
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    ) as JwtPayload;
+    const secret = process.env.JWT_SECRET as string;
+    
+    // Verifikacija i cast-ovanje u nas JwtPayload koji sada ima ispravan 'role'
+    const payload = jwt.verify(token, secret) as JwtPayload;
 
-
-(req as any).user = {
-  userId: payload.userId,
-  role: payload.role
-};
+    // Postavljanje user-a na request
+    req.user = {
+      userId: payload.userId,
+      role: payload.role
+    };
 
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }
-}
+};

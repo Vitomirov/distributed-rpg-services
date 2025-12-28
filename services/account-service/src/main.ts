@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import express, { Request, Response } from "express";
+import express from "express";
 import dotenv from "dotenv";
 import authRoutes from "./modules/auth/auth.routes";
 import { initializeDB } from "./config/db";
@@ -8,10 +8,6 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
-
-app.get("/health", (_req: Request, res: Response) => {
-  res.json({service: "account-service", status: "ok"  });
-});
 
 app.use("/api/auth", authRoutes);
 

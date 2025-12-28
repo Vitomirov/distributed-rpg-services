@@ -2,11 +2,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY shared/ ./shared/
 
-COPY . .
+COPY services/character-service/package*.json ./services/character-service/
+RUN cd services/character-service && npm install
+
+COPY services/character-service/ ./services/character-service/
+
+WORKDIR /app/services/character-service
 
 EXPOSE 3000
 
-CMD ["npx", "ts-node", "src/main.ts"]
+CMD ["npx", "ts-node", "-r", "tsconfig-paths/register", "src/main.ts"]

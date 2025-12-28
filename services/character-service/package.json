@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "dev": "ts-node -r tsconfig-paths/register src/main.ts",
+    "start": "node -r tsconfig-paths/register dist/main.js",
     "build": "tsc",
     "test": "jest",
-    "start": "node dist/main.js",
     "typeorm": "npx typeorm-ts-node-commonjs",
     "migration:run": "npx typeorm-ts-node-commonjs migration:run -d src/config/db.ts",
     "migration:generate": "npx typeorm-ts-node-commonjs migration:generate -d src/config/db.ts"
@@ -18,8 +18,9 @@
     "pg": "^8.16.3",
     "redis": "^5.10.0",
     "reflect-metadata": "^0.2.2",
-    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
     "typeorm": "^0.3.28",
     "typeorm-ts-node-commonjs": "^0.3.20"
   },
@@ -33,7 +34,6 @@
     "jest": "^30.2.0",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.6",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.3"
+    "ts-node-dev": "^2.0.0"
   }
 }

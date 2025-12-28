@@ -36,30 +36,48 @@ services:
       - "6379:6379"
 
   account-service:
-    build: ./services/account-service
+    build:
+      context: .
+      dockerfile: services/account-service/Dockerfile
     container_name: account-service
     ports:
       - "3001:3000"
     env_file: ./services/account-service/.env
+    volumes:
+      - .:/app
+      - /app/services/account-service/node_modules
+      - /app/shared/node_modules
     depends_on:
       - account-db
 
   character-service:
-    build: ./services/character-service
+    build:
+      context: .
+      dockerfile: services/character-service/Dockerfile
     container_name: character-service
     ports:
       - "3002:3000"
     env_file: ./services/character-service/.env
+    volumes:
+      - .:/app
+      - /app/services/character-service/node_modules
+      - /app/shared/node_modules
     depends_on:
       - character-db
       - redis
 
   combat-service:
-    build: ./services/combat-service
+    build:
+      context: .
+      dockerfile: services/combat-service/Dockerfile
     container_name: combat-service
     ports:
       - "3003:3000"
     env_file: ./services/combat-service/.env
+    volumes:
+      - .:/app
+      - /app/services/combat-service/node_modules
+      - /app/shared/node_modules
     depends_on:
       - combat-db
-      - redis    
+      - redis

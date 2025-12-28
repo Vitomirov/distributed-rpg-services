@@ -1,5 +1,4 @@
 import "express";
-import { UserRole } from "@shared/types";
 
 declare module "express-serve-static-core" {
   interface Request {

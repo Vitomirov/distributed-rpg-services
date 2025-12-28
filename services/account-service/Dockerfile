@@ -2,12 +2,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+COPY shared/ ./shared/
 
-COPY . .
-RUN npm run build
+COPY services/account-service/package*.json ./services/account-service/
+RUN cd services/account-service && npm install
+
+COPY services/account-service/ ./services/account-service/
+
+WORKDIR /app/services/account-service
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["npx", "ts-node", "-r", "tsconfig-paths/register", "src/main.ts"]

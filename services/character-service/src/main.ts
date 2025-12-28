@@ -22,19 +22,17 @@ async function startServer() {
   let retries = 5;
   while (retries) {
     try {
-      console.log("Connecting to DB...");
       if (!AppDataSource.isInitialized) {
         await AppDataSource.initialize();
       }
       console.log("Character DB connected");
+
       await connectRedis();
       console.log("Redis connected");
 
-      console.log("Checking migrations...");
       await AppDataSource.runMigrations();
       console.log("Migrations complete");
 
-      console.log("Checking for seed data...");
       await seedDatabase(); 
       console.log("Seeding process finished");
 
