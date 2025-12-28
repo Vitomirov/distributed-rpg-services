@@ -12,6 +12,12 @@ export class Duel {
   defenderId!: string;
 
   @Column()
+  attackerName!: string;
+
+  @Column()
+  defenderName!: string;
+
+  @Column()
   attackerUserId!: string;
   
   @Column()

@@ -8,6 +8,6 @@ export interface JwtPayload {
 }
 
 // Extended Request interface to include user property
-export interface AuthRequest extends Request {
+export type AuthRequest<P = any, B = any> = Request<P, any, B> & {
   user?: JwtPayload;
-}
+};

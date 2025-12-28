@@ -4,7 +4,6 @@ export class AddUserIdsToDuel1766512261417 implements MigrationInterface {
     name = 'AddUserIdsToDuel1766512261417'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        // Prvo kreiramo tabelu jer ona ne postoji u čistoj bazi
         await queryRunner.query(`
             CREATE TABLE IF NOT EXISTS "duels" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
@@ -30,12 +29,16 @@ export class AddUserIdsToDuel1766512261417 implements MigrationInterface {
             )
         `);
 
-        // Zatim dodajemo kolone koje su specifično tražene ovim zadatkom
         await queryRunner.query(`ALTER TABLE "duels" ADD COLUMN IF NOT EXISTS "attackerUserId" character varying NOT NULL`);
         await queryRunner.query(`ALTER TABLE "duels" ADD COLUMN IF NOT EXISTS "defenderUserId" character varying NOT NULL`);
+
+        await queryRunner.query(`ALTER TABLE "duels" ADD COLUMN IF NOT EXISTS "attackerName" character varying`);
+        await queryRunner.query(`ALTER TABLE "duels" ADD COLUMN IF NOT EXISTS "defenderName" character varying`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "duels" DROP COLUMN IF EXISTS "defenderName"`);
+        await queryRunner.query(`ALTER TABLE "duels" DROP COLUMN IF EXISTS "attackerName"`);
         await queryRunner.query(`ALTER TABLE "duels" DROP COLUMN IF EXISTS "defenderUserId"`);
         await queryRunner.query(`ALTER TABLE "duels" DROP COLUMN IF EXISTS "attackerUserId"`);
     }

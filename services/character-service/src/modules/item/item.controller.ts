@@ -1,12 +1,14 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { AppDataSource } from "../../config/db";
 import { Item } from "../../entities/Item";
 import { redisClient } from "../../config/redis";
 import { Character } from "../../entities/Character";
 import { CharacterItem } from "../../entities/CharacterItem";
+import { AuthRequest } from "@shared/types";
+
 
 // POST /api/items
-export async function createItem(req: Request, res: Response) {
+export async function createItem(req: AuthRequest, res: Response) {
   try {
     const { name, description, bonusStrength, bonusAgility, bonusIntelligence, bonusFaith } = req.body;
 
@@ -36,7 +38,7 @@ export async function createItem(req: Request, res: Response) {
 }
 
  // GET /api/items
-export async function getItems(req: any, res: Response) {
+export async function getItems(req: AuthRequest, res: Response) {
   try {
 
     if (req.user?.role !== 'GameMaster') {
@@ -76,7 +78,7 @@ export async function getItems(req: any, res: Response) {
 } 
 
 // GET /api/items/:id
-export async function getItemDetails(req: Request, res: Response) {
+export async function getItemDetails(req: AuthRequest, res: Response) {
   try {
     const { id } = req.params;
     const repo = AppDataSource.getRepository(Item);
@@ -109,7 +111,7 @@ export async function getItemDetails(req: Request, res: Response) {
 }
 
 // POST /api/items/grant
-export async function grantItem(req: Request, res: Response) {
+export async function grantItem(req: AuthRequest, res: Response) {
   try {
     const { characterId, itemId } = req.body;
     
@@ -140,7 +142,7 @@ export async function grantItem(req: Request, res: Response) {
 }
 
 // POST /api/items/gift
-export async function giftItem(req: Request, res: Response) {
+export async function giftItem(req: AuthRequest, res: Response) {
   try {
     const { fromCharacterId, toCharacterId, itemId } = req.body;
     
