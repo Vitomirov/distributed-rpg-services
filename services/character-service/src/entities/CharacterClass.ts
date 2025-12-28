@@ -2,8 +2,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany
-} from "typeorm";
+  OneToMany} from "typeorm";
 import { Character } from "./Character";
 
 @Entity()
@@ -19,4 +18,5 @@ export class CharacterClass {
 
   @OneToMany(() => Character, character => character.characterClass)
   characters!: Character[];
+
 }

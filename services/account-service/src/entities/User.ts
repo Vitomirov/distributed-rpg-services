@@ -1,6 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
-
-export type UserRole = "User" | "GameMaster";
+import { UserRole } from "@shared/types";
 
 @Entity()
 export class User {

@@ -71,7 +71,7 @@ export async function login(req: Request, res: Response) {
     // Create JWT payload
     const payload: JwtPayload = {
       userId: user.id.toString(), 
-      role: user.role as any,
+      role: user.role
     };
 
     let expiresIn: number | undefined;

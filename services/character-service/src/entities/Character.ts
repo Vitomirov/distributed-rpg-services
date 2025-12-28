@@ -3,7 +3,8 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToMany
+  OneToMany,
+  JoinColumn
 } from "typeorm";
 import { CharacterClass } from "./CharacterClass";
 import { CharacterItem } from "./CharacterItem";
@@ -15,6 +16,13 @@ export class Character {
 
   @Column({ unique: true })
   name!: string;
+
+  @Column()
+  characterClassId!: string;
+
+  @ManyToOne(() => CharacterClass, (characterClass) => characterClass.characters)
+  @JoinColumn({ name: "characterClassId" }) 
+  characterClass!: CharacterClass;
 
   @Column()
   health!: number;
@@ -36,9 +44,6 @@ export class Character {
 
   @Column()
   createdBy!: string; // userId from JWT
-
-  @ManyToOne(() => CharacterClass, (cls: CharacterClass) => cls.characters, { eager: true })
-  characterClass!: CharacterClass;
 
   @OneToMany(() => CharacterItem, (ci: CharacterItem) => ci.character)
   items!: CharacterItem[];

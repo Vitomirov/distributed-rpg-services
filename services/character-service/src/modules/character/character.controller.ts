@@ -1,10 +1,22 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { AppDataSource } from "../../config/db";
 import { redisClient } from "../../config/redis";
 import { Character } from "../../entities/Character";
+import { AuthRequest } from "@shared/types"; 
+
+interface CreateCharacterInput {
+  name: string;
+  health?: number;
+  mana?: number;
+  baseStrength?: number;
+  baseAgility?: number;
+  baseIntelligence?: number;
+  baseFaith?: number;
+  characterClassId: string;
+}
 
 // POST /api/character
-export async function createCharacter(req: Request, res: Response) {
+export async function createCharacter(req: AuthRequest, res: Response) {
   try {
     const { 
       name, 
@@ -15,12 +27,12 @@ export async function createCharacter(req: Request, res: Response) {
       baseIntelligence, 
       baseFaith, 
       characterClassId 
-    } = req.body;
+    } = req.body as CreateCharacterInput;
     
     if (!name) return res.status(400).json({ message: "Character name is required" });
     if (!characterClassId) return res.status(400).json({ message: "Character class ID is required" });
 
-    const user = (req as any).user;
+    const user = req.user;
     if (!user || !user.userId) {
       return res.status(401).json({ message: "Unauthorized: No user found in token" });
     }
@@ -39,7 +51,7 @@ export async function createCharacter(req: Request, res: Response) {
       baseIntelligence: baseIntelligence ?? 10,
       baseFaith: baseFaith ?? 10,
       createdBy: user.userId,
-      characterClass: { id: characterClassId } as any 
+      characterClassId: characterClassId// TODO: validate class ID exists
     });
 
     await repo.save(character);
@@ -51,11 +63,11 @@ export async function createCharacter(req: Request, res: Response) {
 }
 
 // GET /api/character
-export async function getAllCharacters(req: Request, res: Response) {
+export async function getAllCharacters(req: AuthRequest, res: Response) {
   try {
-    const user = (req as any).user;
+    const user = req.user;
 
-    if (user.role !== 'GameMaster') {
+    if (!user || user.role !== 'GameMaster') {
       return res.status(403).json({ message: "Forbidden: Only Game Masters can list all characters" });
     }
 
@@ -82,10 +94,10 @@ export async function getAllCharacters(req: Request, res: Response) {
 }
 
 // GET /api/character/:id
-export async function getCharacterById(req: Request, res: Response) {
+export async function getCharacterById(req: AuthRequest, res: Response) {
   try {
     const { id } = req.params;
-    const user = (req as any).user;
+    const user = req.user;
     const cacheKey = `character:${id}`;
 
     const cached = await redisClient.get(cacheKey);
@@ -102,7 +114,7 @@ export async function getCharacterById(req: Request, res: Response) {
 
     if (!character) return res.status(404).json({ message: "Character not found" });
 
-    if (user.role !== 'GameMaster' && character.createdBy !== user.userId) {
+    if (!user || user.role !== 'GameMaster' && character.createdBy !== user.userId) {
       return res.status(403).json({ message: "Access denied" });
     }
 

@@ -1,13 +1,13 @@
-// shared/types.ts
-import type { Request } from "express";
+import { Request } from "express";
+
+export type UserRole = "User" | "GameMaster";
 
 export interface JwtPayload {
   userId: string;
-  role: "User" | "GameMaster"; 
+  role: UserRole; 
 }
 
-// Umesto da TypeScript sam nagađa odakle je Request, 
-// koristimo ga direktno iz importa
+// Extended Request interface to include user property
 export interface AuthRequest extends Request {
   user?: JwtPayload;
 }
