@@ -6,78 +6,81 @@ CHAR_URL="http://localhost:3002/api/character"
 ITEM_URL="http://localhost:3002/api/items"
 COMBAT_URL="http://localhost:3003/api/combat"
 
-# Fixed IDs from seed.ts
-WARRIOR_ID="69c56550-b39a-440a-a84f-830ca734cfb6"
-MAGE_ID="a1b2c3d4-e5f6-4012-8345-6789abcdef01"
-STAFF_ID="c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f"
-SWORD_ID="b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e"
+# IDs matching the seed exactly
+CLASS1_ID="69c56550-b39a-440a-a84f-830ca734cfb6"
+CLASS2_ID="a1b2c3d4-e5f6-4012-8345-6789abcdef01"
+ITEM1_ID="b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e"
+ITEM2_ID="c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f"
 
-echo "🚀 ZENTRIX RPG - FULL SYSTEM SIMULATION 🚀"
+# Unique suffix to prevent "Name already exists" errors
+TS=$(date +%s)
+C1_NAME="Character1_$TS"
+C2_NAME="Character2_$TS"
 
-# 1. AUTH FLOW
-GM_USER="GM_$(date +%s)"
-echo -e "\n1️⃣ Registering and logging in GameMaster ($GM_USER)..."
-curl -s -X POST $AUTH_URL/register -H "Content-Type: application/json" \
-     -d "{\"username\":\"$GM_USER\",\"password\":\"123456\",\"role\":\"GameMaster\"}" > /dev/null
+echo "🚀 ZENTRIX RPG - SYSTEM SIMULATION 🚀"
 
-TOKEN=$(curl -s -X POST $AUTH_URL/login -H "Content-Type: application/json" \
-        -d "{\"username\":\"$GM_USER\",\"password\":\"123456\"}" | jq -r '.token')
+# 1. SETUP GAMEMASTER 1 & CHARACTER 1
+echo -e "\n1️⃣ Registering/Logging in GameMaster1..."
+# We ignore error on register in case user exists, then we login to get fresh token
+curl -s -X POST $AUTH_URL/register -H "Content-Type: application/json" -d '{"username":"GameMaster1","password":"123456","role":"GameMaster"}' > /dev/null
 
-if [ "$TOKEN" == "null" ] || [ -z "$TOKEN" ]; then 
-    echo "❌ Error: Authentication failed. Ensure services are running!"
-    exit 1
-fi
-echo "✅ Token successfully acquired."
+TOKEN1=$(curl -s -X POST $AUTH_URL/login -H "Content-Type: application/json" -d '{"username":"GameMaster1","password":"123456"}' | jq -r '.token')
 
-# 2. CHARACTER CREATION
-echo -e "\n2️⃣ Creating characters (Ranni and Radahn)..."
-RANNI_ID=$(curl -s -X POST $CHAR_URL -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d "{\"name\":\"Ranni_$GM_USER\",\"characterClassId\":\"$MAGE_ID\",\"baseIntelligence\":30,\"baseFaith\":20}" | jq -r '.id')
+echo "🔹 Creating $C1_NAME..."
+CHAR1_RES=$(curl -s -X POST $CHAR_URL -H "Authorization: Bearer $TOKEN1" -H "Content-Type: application/json" \
+  -d "{\"name\":\"$C1_NAME\",\"characterClassId\":\"$CLASS2_ID\",\"baseIntelligence\":10,\"baseFaith\":20}")
+CHAR1_ID=$(echo $CHAR1_RES | jq -r '.id')
 
-RADAHN_ID=$(curl -s -X POST $CHAR_URL -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d "{\"name\":\"Radahn_$GM_USER\",\"characterClassId\":\"$WARRIOR_ID\",\"health\":200}" | jq -r '.id')
+if [ "$CHAR1_ID" == "null" ]; then echo "❌ Character1 Creation Failed: $CHAR1_RES"; exit 1; fi
 
-echo "✅ Ranni ID: $RANNI_ID"
-echo "✅ Radahn ID: $RADAHN_ID"
+curl -s -X POST "$ITEM_URL/grant" -H "Authorization: Bearer $TOKEN1" -H "Content-Type: application/json" \
+     -d "{\"characterId\":\"$CHAR1_ID\",\"itemId\":\"$ITEM1_ID\"}" > /dev/null
 
-# 3. ITEM MANAGEMENT (GRANT & GIFT)
-echo -e "\n3️⃣ Testing Item Management (Grant & Gift)..."
+# 2. SETUP GAMEMASTER 2 & CHARACTER 2
+echo -e "\n2️⃣ Registering/Logging in GameMaster2..."
+curl -s -X POST $AUTH_URL/register -H "Content-Type: application/json" -d '{"username":"GameMaster2","password":"123456","role":"GameMaster"}' > /dev/null
 
-echo "🔹 Grant: Assigning Dragon Slayer to Radahn..."
-curl -s -X POST "$ITEM_URL/grant" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-     -d "{\"characterId\":\"$RADAHN_ID\",\"itemId\":\"$SWORD_ID\"}" | jq -c
+TOKEN2=$(curl -s -X POST $AUTH_URL/login -H "Content-Type: application/json" -d '{"username":"GameMaster2","password":"123456"}' | jq -r '.token')
 
-echo "🔹 Grant: Assigning Mystic Staff to Ranni..."
-curl -s -X POST "$ITEM_URL/grant" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-     -d "{\"characterId\":\"$RANNI_ID\",\"itemId\":\"$STAFF_ID\"}" | jq -c
+echo "🔹 Creating $C2_NAME..."
+CHAR2_RES=$(curl -s -X POST $CHAR_URL -H "Authorization: Bearer $TOKEN2" -H "Content-Type: application/json" \
+  -d "{\"name\":\"$C2_NAME\",\"characterClassId\":\"$CLASS1_ID\",\"health\":100}")
+CHAR2_ID=$(echo $CHAR2_RES | jq -r '.id')
 
-echo "🔹 Gift: Ranni transferring (gifting) her Staff to Radahn..."
-curl -s -X POST "$ITEM_URL/gift" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-     -d "{\"fromCharacterId\":\"$RANNI_ID\",\"toCharacterId\":\"$RADAHN_ID\",\"itemId\":\"$STAFF_ID\"}" | jq -c
+if [ "$CHAR2_ID" == "null" ]; then echo "❌ Character2 Creation Failed: $CHAR2_RES"; exit 1; fi
 
-# 4. COMBAT FLOW
-echo -e "\n4️⃣ Initiating Combat (Challenge)..."
-DUEL_ID=$(curl -s -X POST $COMBAT_URL/challenge -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-  -d "{\"attackerId\":\"$RANNI_ID\",\"defenderId\":\"$RADAHN_ID\"}" | jq -r '.id')
+curl -s -X POST "$ITEM_URL/grant" -H "Authorization: Bearer $TOKEN2" -H "Content-Type: application/json" \
+     -d "{\"characterId\":\"$CHAR2_ID\",\"itemId\":\"$ITEM2_ID\"}" > /dev/null
 
+echo "✅ Characters ready. IDs: $CHAR1_ID vs $CHAR2_ID"
+sleep 2
+
+# 3. COMBAT FLOW
+echo -e "\n3️⃣ Initiating Combat ($C1_NAME vs $C2_NAME)..."
+DUEL_ID=$(curl -s -X POST $COMBAT_URL/challenge -H "Authorization: Bearer $TOKEN1" -H "Content-Type: application/json" \
+  -d "{\"attackerId\":\"$CHAR1_ID\",\"defenderId\":\"$CHAR2_ID\"}" | jq -r '.id')
+
+if [ "$DUEL_ID" == "null" ]; then echo "❌ Combat Initiation Failed!"; exit 1; fi
 echo "🏟️ Duel ID: $DUEL_ID"
 
-function action() {
-    echo -n "⚔️ $1 action: "
-    curl -s -X POST "$COMBAT_URL/$DUEL_ID/$1" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+function combat_step() {
+    echo -n "⚔️ Action [$1]: "
+    curl -s -X POST "$COMBAT_URL/$DUEL_ID/$1" -H "Authorization: Bearer $TOKEN1" -H "Content-Type: application/json" \
     | jq -c '{status: .status, attackerHp: .attackerHp, defenderHp: .defenderHp}'
     sleep 2.2
 }
 
-action "cast"   # 60 dmg
-action "heal"   # Ranni heals for 20
-action "cast"   # 60 dmg
-action "attack" # ~20 dmg
-action "cast"   # Finishing move
+combat_step "cast"
+combat_step "heal"
+combat_step "cast"
+combat_step "attack"
+combat_step "cast"
 
-# 5. FINAL VERIFICATION
-echo -e "\n5️⃣ Verifying Winner and Loot Transfer..."
-echo "🔍 Winner's Inventory (Ranni) - checking for looted items from Radahn:"
-curl -s -X GET "$CHAR_URL/$RANNI_ID" -H "Authorization: Bearer $TOKEN" | jq '.items[] | {itemName: .item.name}'
+# 4. FINAL VERIFICATION
+echo -e "\n4️⃣ Verifying Winner's Inventory..."
+echo "🔍 Checking $C1_NAME items (Should have Item1 and Item2):"
+sleep 2
+curl -s -X GET "$CHAR_URL/$CHAR1_ID" -H "Authorization: Bearer $TOKEN1" \
+| jq -r '.items[] | "📦 Possesses: " + .item.name'
 
-echo -e "\n🏁 Simulation completed successfully!"
+echo -e "\n🏁 Simulation Completed Successfully."

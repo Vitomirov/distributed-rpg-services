@@ -1,0 +1,496 @@
+{
+	"info": {
+		"_postman_id": "5f1326e1-49f8-49c6-82a3-f334970885eb",
+		"name": "Zentrix Lab - entry task",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37553947"
+	},
+	"item": [
+		{
+			"name": "Account Service",
+			"item": [
+				{
+					"name": "1. Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"GamerOne\",\n  \"password\": \"password123\",\n  \"role\": \"GameMaster\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{account_url}}/api/auth/register",
+							"host": [
+								"{{account_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+									"    console.log(\"Token is saved\");",
+									"} "
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"GamerOne\",\n  \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{account_url}}/api/auth/login",
+							"host": [
+								"{{account_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "The Account Service manages user authentication and identity within the system. It provides endpoints for user registration and secure login, issuing **JWT Bearer tokens** for authorized access to other microservices. Each token includes the user’s role (User or Game Master), which is used for Role-Based Access Control (RBAC) across the platform . Data is persisted in a dedicated PostgreSQL database, ensuring clear separation of concerns."
+		},
+		{
+			"name": "Character Service",
+			"item": [
+				{
+					"name": "1. Create Character",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set(\"character_id\", jsonData.id);",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Hero2\",\n  \"characterClassId\": \"69c56550-b39a-440a-a84f-830ca734cfb6\",\n  \"health\": 100,\n  \"mana\": 50,\n  \"baseStrength\": 15,\n  \"baseAgility\": 10,\n  \"baseIntelligence\": 5,\n  \"baseFaith\": 5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{character_url}}/api/character",
+							"host": [
+								"{{character_url}}"
+							],
+							"path": [
+								"api",
+								"character"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get All Characters",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Hero1\",\n  \"characterClassId\": \"69c56550-b39a-440a-a84f-830ca734cfb6\",\n  \"health\": 100,\n  \"mana\": 50,\n  \"baseStrength\": 15,\n  \"baseAgility\": 10,\n  \"baseIntelligence\": 5,\n  \"baseFaith\": 5\n}"
+						},
+						"url": {
+							"raw": "{{character_url}}/api/character",
+							"host": [
+								"{{character_url}}"
+							],
+							"path": [
+								"api",
+								"character"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Get Character Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{character_url}}/api/character/{{character_id}}",
+							"host": [
+								"{{character_url}}"
+							],
+							"path": [
+								"api",
+								"character",
+								"{{character_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Create Item",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\":\"Super sheild\", \n    \"description\": \"best sheild in game\", \n    \"bonusStrength\": \"50\", \n    \"bonusAgility\": \"35\",\n    \"bonusIntelligence\":\"60\",\n    \"bonusFaith\":\"50\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{character_url}}/api/items/",
+							"host": [
+								"{{character_url}}"
+							],
+							"path": [
+								"api",
+								"items",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5. Get all itmes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{character_url}}/api/items",
+							"host": [
+								"{{character_url}}"
+							],
+							"path": [
+								"api",
+								"items"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6. Get Item Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{character_url}}/api/items/{{item_id}}",
+							"host": [
+								"{{character_url}}"
+							],
+							"path": [
+								"api",
+								"items",
+								"{{item_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7. Grant Item",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"characterId\": \"373cd55d-7bda-4a05-9f5d-138760618088\",\n    \"itemId\": \"0e971ec9-1964-478a-8753-4ce39243d802\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{character_url}}/api/items/grant",
+							"host": [
+								"{{character_url}}"
+							],
+							"path": [
+								"api",
+								"items",
+								"grant"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8. Gift Item",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fromCharacterId\": \"373cd55d-7bda-4a05-9f5d-138760618088\",\n    \"toCharacterId\": \"805ec1a6-0302-4270-b343-269d4fcfd5c4\", \n    \"itemId\": \"0e971ec9-1964-478a-8753-4ce39243d802\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{character_url}}/api/items/gift",
+							"host": [
+								"{{character_url}}"
+							],
+							"path": [
+								"api",
+								"items",
+								"gift"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "This service implements the core RPG business logic, managing character entities, classes, and items. It calculates real-time character stats by aggregating base attributes with bonuses from equipped gear. To optimize performance, the service utilizes **Redis for caching** character details, with automatic invalidation upon any data changes. It also handles complex item logic, including the dynamic generation of item name suffixes and item transfers between players."
+		},
+		{
+			"name": "Combat Service",
+			"item": [
+				{
+					"name": "1. Initiate Challenge",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"if (jsonData.id) {",
+									"    pm.collectionVariables.set(\"duel_id\", jsonData.id);",
+									"    console.log(\"Challenge ID: \" + jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"attackerId\": \"{{character_id}}\",\n    \"defenderId\": \"{{enemy_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{combat_url}}/api/combat/challenge",
+							"host": [
+								"{{combat_url}}"
+							],
+							"path": [
+								"api",
+								"combat",
+								"challenge"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Execute Attack",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{combat_url}}/api/combat/{{duel_id}}/attack",
+							"host": [
+								"{{combat_url}}"
+							],
+							"path": [
+								"api",
+								"combat",
+								"{{duel_id}}",
+								"attack"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Cast Spell",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{combat_url}}/api/combat/{{duel_id}}/cast",
+							"host": [
+								"{{combat_url}}"
+							],
+							"path": [
+								"api",
+								"combat",
+								"{{duel_id}}",
+								"cast"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Use Heal",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{combat_url}}/api/combat/{{duel_id}}/heal",
+							"host": [
+								"{{combat_url}}"
+							],
+							"path": [
+								"api",
+								"combat",
+								"{{duel_id}}",
+								"heal"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "The Combat Service orchestrates real-time duels between characters by synchronizing data from the Character Service. It manages the combat state, allowing participants to perform actions like **Attack, Cast, and Heal**, each governed by specific cooldowns and stat-based damage formulas. The service tracks the duel's duration and health pools to determine a winner or a draw. Upon conclusion, it triggers a notification to the Character Service to handle the transfer of reward items to the victor."
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "account_url",
+			"value": ""
+		},
+		{
+			"key": "character_url",
+			"value": ""
+		},
+		{
+			"key": "combat_url",
+			"value": ""
+		},
+		{
+			"key": "character_id",
+			"value": ""
+		},
+		{
+			"key": "item_id",
+			"value": ""
+		},
+		{
+			"key": "enemy_id",
+			"value": ""
+		},
+		{
+			"key": "jwt_token",
+			"value": ""
+		},
+		{
+			"key": "duel_id",
+			"value": ""
+		}
+	]
+}

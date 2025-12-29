@@ -51,7 +51,7 @@ export async function createCharacter(req: AuthRequest, res: Response) {
       baseIntelligence: baseIntelligence ?? 10,
       baseFaith: baseFaith ?? 10,
       createdBy: user.userId,
-      characterClassId: characterClassId// TODO: validate class ID exists
+      characterClassId: characterClassId
     });
 
     await repo.save(character);
