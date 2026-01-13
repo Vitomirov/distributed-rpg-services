@@ -17,7 +17,7 @@ TS=$(date +%s)
 C1_NAME="Character1_$TS"
 C2_NAME="Character2_$TS"
 
-echo "🚀 ZENTRIX RPG - SYSTEM SIMULATION 🚀"
+echo "🚀 DISTRIBUTED RPG SERVICES - SYSTEM SIMULATION 🚀"
 
 # 1. SETUP GAMEMASTER 1 & CHARACTER 1
 echo -e "\n1️⃣ Registering/Logging in GameMaster1..."

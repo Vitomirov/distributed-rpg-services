@@ -1,5 +1,5 @@
 {
-  "name": "zentrix-rpg-root",
+  "name": "distributed-rpg-services",
   "version": "1.0.0",
   "scripts": {
     "test": "docker exec -it character-service npm test",

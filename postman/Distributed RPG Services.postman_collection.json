@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "5f1326e1-49f8-49c6-82a3-f334970885eb",
-		"name": "Zentrix Lab - entry task",
+		"name": "Distributed RPG Services",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "37553947"
 	},
@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"GamerOne\",\n  \"password\": \"password123\",\n  \"role\": \"GameMaster\"\n}",
+							"raw": "{\n  \"username\": \"GameMaster1\",\n  \"password\": \"123456\",\n  \"role\": \"GameMaster\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -73,7 +73,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"username\": \"GamerOne\",\n  \"password\": \"password123\"\n}",
+							"raw": "{\n  \"username\": \"GameMaster1\",\n  \"password\": \"123456\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -125,7 +125,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Hero2\",\n  \"characterClassId\": \"69c56550-b39a-440a-a84f-830ca734cfb6\",\n  \"health\": 100,\n  \"mana\": 50,\n  \"baseStrength\": 15,\n  \"baseAgility\": 10,\n  \"baseIntelligence\": 5,\n  \"baseFaith\": 5\n}",
+							"raw": "{\n  \"name\": \"Hero1\",\n  \"characterClassId\": \"69c56550-b39a-440a-a84f-830ca734cfb6\",\n  \"health\": 70,\n  \"mana\": 40,\n  \"baseStrength\": 5,\n  \"baseAgility\": 5,\n  \"baseIntelligence\": 35,\n  \"baseFaith\": 55\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -155,7 +155,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Hero1\",\n  \"characterClassId\": \"69c56550-b39a-440a-a84f-830ca734cfb6\",\n  \"health\": 100,\n  \"mana\": 50,\n  \"baseStrength\": 15,\n  \"baseAgility\": 10,\n  \"baseIntelligence\": 5,\n  \"baseFaith\": 5\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{character_url}}/api/character",
@@ -196,7 +196,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Super sheild\", \n    \"description\": \"best sheild in game\", \n    \"bonusStrength\": \"50\", \n    \"bonusAgility\": \"35\",\n    \"bonusIntelligence\":\"60\",\n    \"bonusFaith\":\"50\"\n}",
+							"raw": "{\n    \"name\":\"Hero1 Sword\", \n    \"description\": \"postman item\", \n    \"bonusStrength\": \"10\", \n    \"bonusAgility\": \"65\",\n    \"bonusIntelligence\":\"20\",\n    \"bonusFaith\":\"35\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -261,7 +261,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"characterId\": \"373cd55d-7bda-4a05-9f5d-138760618088\",\n    \"itemId\": \"0e971ec9-1964-478a-8753-4ce39243d802\"\n}",
+							"raw": "{\n    \"characterId\": \"a560860a-9cee-4d52-949a-46cd3295e300\",\n    \"itemId\": \"51485bd0-9a2a-4cb9-80c7-78afb89f7891\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -289,7 +289,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"fromCharacterId\": \"373cd55d-7bda-4a05-9f5d-138760618088\",\n    \"toCharacterId\": \"805ec1a6-0302-4270-b343-269d4fcfd5c4\", \n    \"itemId\": \"0e971ec9-1964-478a-8753-4ce39243d802\"\n\n}",
+							"raw": "{\n    \"fromCharacterId\": \"325c3473-e81c-423e-ad70-2c539dc2dfb7\",\n    \"toCharacterId\": \"d654ff82-1c26-46d2-bca3-fec0ea591b7c\", \n    \"itemId\": \"5d2cdf94-0f56-47e9-8c92-8323be30faa2\"\n\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -363,6 +363,19 @@
 				},
 				{
 					"name": "2. Execute Attack",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -473,11 +486,11 @@
 			"value": ""
 		},
 		{
-			"key": "character_id",
+			"key": "jwt_token",
 			"value": ""
 		},
 		{
-			"key": "item_id",
+			"key": "character_id",
 			"value": ""
 		},
 		{
@@ -485,11 +498,14 @@
 			"value": ""
 		},
 		{
-			"key": "jwt_token",
+			"key": "item_id",
 			"value": ""
 		},
 		{
 			"key": "duel_id",
+			"value": ""
+		},
+		{
 			"value": ""
 		}
 	]

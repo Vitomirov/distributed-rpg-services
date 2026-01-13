@@ -1,4 +1,4 @@
-# ⚔️ Zentrix RPG — Microservices Battle System
+# ⚔️ Distributed RPG Services — Microservices Battle System
 
 A production-ready **RPG backend system** built on a clean **microservices architecture**.  
 Players create characters, manage equipment, and fight turn-based duels with **automatic loot distribution** — all fully containerized and runnable with a single command.
@@ -76,6 +76,19 @@ Before starting the system, create `.env` files from the provided examples:
 cp services/account-service/.env.example services/account-service/.env
 cp services/character-service/.env.example services/character-service/.env
 cp services/combat-service/.env.example services/combat-service/.env
+```
+
+### 📮 API Documentation (Postman)
+
+The project includes a comprehensive Postman Collection to help you test the API endpoints immediately.
+
+1. Open Postman.
+2. Click Import and select the file located in: postman/Distributed RPG Services.postman_collection.json
+3. The collection includes pre-configured requests for:
+    - Authentication (Login/Register)
+    - Character Management (Create, List, Get Details)
+    - Item Operations (Grant, Gift, Create)
+    - Combat (Initiate Duel, Actions, End-to-end flow)
 
 
 ### 3️⃣ End-to-End Simulation
@@ -109,4 +122,4 @@ Run all tests from the project root:
 npm test
 ```
 ---
-Developed by Dejan Vitomirov as an entry task for Zentrix Lab.
+Developed by Dejan Vitomirov.
