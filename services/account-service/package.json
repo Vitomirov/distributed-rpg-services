@@ -5,7 +5,8 @@
     "dev": "ts-node -r tsconfig-paths/register src/main.ts",
     "start": "node -r tsconfig-paths/register dist/main.js",
     "build": "tsc",
-    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/config/db.ts"
+    "migration:run": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d src/config/db.ts",
+  "migration:generate": "npx ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:generate -d src/config/db.ts src/migrations/UpdateUserRoleToEnum"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

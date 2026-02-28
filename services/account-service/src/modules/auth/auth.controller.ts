@@ -4,7 +4,7 @@ import jwt, { SignOptions } from "jsonwebtoken";
 import ms from "ms";
 import { AppDataSource } from "../../config/db";
 import { User } from "../../entities/User";
-import { JwtPayload } from "@shared/types";
+import { UserRole, JwtPayload } from "@shared/types";
 
 // POST /auth/register
 export async function register(req: Request, res: Response) {
@@ -27,7 +27,7 @@ export async function register(req: Request, res: Response) {
     const user = userRepo.create({
       username,
       password: hashedPassword,
-      role: role === "GameMaster" ? "GameMaster" : "User",
+      role: role === UserRole.GAME_MASTER ? UserRole.GAME_MASTER : UserRole.USER,
     });
 
     await userRepo.save(user);

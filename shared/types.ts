@@ -1,6 +1,9 @@
-import { Request } from "express";
+// import { Request } from "express";
 
-export type UserRole = "User" | "GameMaster";
+export enum UserRole {
+  USER = "User",
+  GAME_MASTER = "GameMaster"
+}
 
 export interface JwtPayload {
   userId: string;
@@ -8,6 +11,6 @@ export interface JwtPayload {
 }
 
 // Extended Request interface to include user property
-export type AuthRequest<P = any, B = any> = Request<P, any, B> & {
+export type AuthRequest<P = any, B = any> = any & {
   user?: JwtPayload;
 };
