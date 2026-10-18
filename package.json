@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "test": "docker exec -it character-service npm test",
-    "simulation": "bash simulate_rpg.sh"
+    "simulation": "bash simulate_rpg.sh",
+    "web": "npm run dev --prefix web"
   },
   "devDependencies": {
     "@types/express": "^4.17.25", 

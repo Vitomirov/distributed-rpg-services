@@ -1,8 +1,10 @@
 import { Response } from "express";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { AppDataSource } from "../../config/db";
 import { Duel } from "../../entities/Duel";
+import { attackDamage, castDamage, healAmount as faithHeal } from "@shared/combatMath";
 import { AuthRequest } from "@shared/types";
+import { enemyActionLabel, pickEnemyAction } from "./enemyAi";
 
 const CHARACTER_SERVICE_URL = process.env.CHARACTER_SERVICE_URL;
 
@@ -53,6 +55,15 @@ async function handleDuelEnd(winnerId: string, loserId: string, token: string) {
       console.error("Reward transfer failed!", error.response?.status);
     }
   }
+}
+
+async function concludeDuel(duel: Duel, token: string) {
+  if (duel.attackerHp > 0 && duel.defenderHp > 0) return;
+
+  duel.status = "FINISHED";
+  duel.winnerId = duel.attackerHp > 0 ? duel.attackerId : duel.defenderId;
+  const loserId = duel.winnerId === duel.attackerId ? duel.defenderId : duel.attackerId;
+  await handleDuelEnd(duel.winnerId, loserId, token);
 }
 
 // --- Controllers ---
@@ -138,21 +149,18 @@ export async function attack(req: AuthRequest, res: Response) {
       return res.status(429).json({ message: "Attack on cooldown" });
     }
 
-    let damage = isAttacker ? (duel.attackerStr + duel.attackerAgi) : (duel.defenderStr + duel.defenderAgi);
+    const damage = isAttacker
+      ? attackDamage(duel.attackerStr, duel.attackerAgi)
+      : attackDamage(duel.defenderStr, duel.defenderAgi);
 
     if (isAttacker) {
-      duel.defenderHp = Math.max (0, duel.defenderHp - damage);
-    } 
-    else duel.attackerHp = Math.max (0, duel.attackerHp - damage);
+      duel.defenderHp = Math.max(0, duel.defenderHp - damage);
+    } else {
+      duel.attackerHp = Math.max(0, duel.attackerHp - damage);
+    }
 
     duel.lastAttackAt = now;
-
-    if (duel.attackerHp <= 0 || duel.defenderHp <= 0) {
-      duel.status = "FINISHED";
-      duel.winnerId = duel.attackerHp > 0 ? duel.attackerId : duel.defenderId;
-      const loserId = duel.winnerId === duel.attackerId ? duel.defenderId : duel.attackerId;
-      await handleDuelEnd(duel.winnerId, loserId, token);
-    }
+    await concludeDuel(duel, token);
 
     await repo.save(duel);
     return res.status(200).json(duel);
@@ -181,17 +189,11 @@ export async function cast(req: AuthRequest, res: Response) {
       return res.status(429).json({ message: "Cast on cooldown" });
     }
 
-    let damage = isAttacker ? duel.attackerInt * 2 : duel.defenderInt * 2;
+    const damage = isAttacker ? castDamage(duel.attackerInt) : castDamage(duel.defenderInt);
     if (isAttacker) duel.defenderHp -= damage; else duel.attackerHp -= damage;
 
     duel.lastCastAt = now;
-
-    if (duel.attackerHp <= 0 || duel.defenderHp <= 0) {
-      duel.status = "FINISHED";
-      duel.winnerId = duel.attackerHp > 0 ? duel.attackerId : duel.defenderId;
-      const loserId = duel.winnerId === duel.attackerId ? duel.defenderId : duel.attackerId;
-      await handleDuelEnd(duel.winnerId, loserId, token);
-    }
+    await concludeDuel(duel, token);
 
     await repo.save(duel);
     return res.status(200).json(duel);
@@ -219,13 +221,65 @@ export async function heal(req: AuthRequest, res: Response) {
       return res.status(429).json({ message: "Heal on cooldown" });
     }
 
-    let healAmount = isAttacker ? duel.attackerFaith : duel.defenderFaith;
-    if (isAttacker) duel.attackerHp += healAmount; else duel.defenderHp += healAmount;
+    const amount = isAttacker ? faithHeal(duel.attackerFaith) : faithHeal(duel.defenderFaith);
+    if (isAttacker) duel.attackerHp += amount; else duel.defenderHp += amount;
 
     duel.lastHealAt = now;
     await repo.save(duel);
     return res.status(200).json(duel);
   } catch (err) { 
     return res.status(500).json({ message: "Heal error" }); 
+  }
+}
+
+// POST /api/combat/:duelId/enemy-turn
+export async function enemyTurn(req: AuthRequest, res: Response) {
+  const { duelId } = req.params;
+  const loggedInUserId = req.user?.userId;
+  const token = req.headers.authorization as string;
+  const repo = AppDataSource.getRepository(Duel);
+
+  try {
+    const duel = await repo.findOne({ where: { id: duelId, status: "IN_PROGRESS" } });
+    if (!duel) return res.status(404).json({ message: "Duel not found" });
+    if (duel.attackerUserId !== loggedInUserId) {
+      return res.status(403).json({ message: "Only the student can face this activist" });
+    }
+
+    const now = new Date();
+    if (duel.lastEnemyActionAt && now.getTime() - new Date(duel.lastEnemyActionAt).getTime() < 1500) {
+      return res.status(429).json({ message: "Enemy turn on cooldown" });
+    }
+
+    const action = pickEnemyAction(duel.defenderFaith, duel.defenderStr, Math.floor(Math.random() * 10));
+    if (action === "attack") {
+      const damage = attackDamage(duel.defenderStr, duel.defenderAgi);
+      duel.attackerHp = Math.max(0, duel.attackerHp - damage);
+    } else if (action === "cast") {
+      const damage = castDamage(duel.defenderInt);
+      duel.attackerHp = Math.max(0, duel.attackerHp - damage);
+    } else {
+      duel.defenderHp += faithHeal(duel.defenderFaith);
+    }
+
+    duel.lastEnemyActionAt = now;
+    await concludeDuel(duel, token);
+    await repo.save(duel);
+
+    return res.status(200).json({
+      id: duel.id,
+      attackerId: duel.attackerId,
+      defenderId: duel.defenderId,
+      attackerName: duel.attackerName,
+      defenderName: duel.defenderName,
+      attackerHp: duel.attackerHp,
+      defenderHp: duel.defenderHp,
+      status: duel.status,
+      winnerId: duel.winnerId,
+      enemyAction: action,
+      enemyLabel: enemyActionLabel(action, duel.defenderFaith, duel.defenderStr),
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Enemy turn error" });
   }
 }

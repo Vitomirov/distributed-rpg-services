@@ -1,8 +1,11 @@
 import { Response } from "express";
 import { AppDataSource } from "../../config/db";
 import { redisClient } from "../../config/redis";
+import { findStudent, resolveStudentTemplate } from "../../config/gameTemplates";
 import { Character } from "../../entities/Character";
-import { AuthRequest } from "@shared/types"; 
+import { AuthRequest } from "@shared/types";
+import { grantItemToCharacter } from "../item/item.controller";
+import { withCalculatedStats } from "./character.stats"; 
 
 interface CreateCharacterInput {
   name: string;
@@ -42,19 +45,33 @@ export async function createCharacter(req: AuthRequest, res: Response) {
     const existing = await repo.findOne({ where: { name } });
     if (existing) return res.status(409).json({ message: "Character name already exists" });
 
+    const template = resolveStudentTemplate(characterClassId, {
+      health,
+      baseStrength,
+      baseAgility,
+      baseIntelligence,
+      baseFaith,
+    });
+
     const character = repo.create({
       name,
-      health: health ?? 100,
-      mana: mana ?? 50,
-      baseStrength: baseStrength ?? 10,
-      baseAgility: baseAgility ?? 10,
-      baseIntelligence: baseIntelligence ?? 10,
-      baseFaith: baseFaith ?? 10,
+      health: template?.health ?? health ?? 100,
+      mana: mana ?? template?.mana ?? 50,
+      baseStrength: template?.baseStrength ?? baseStrength ?? 10,
+      baseAgility: template?.baseAgility ?? baseAgility ?? 10,
+      baseIntelligence: template?.baseIntelligence ?? baseIntelligence ?? 10,
+      baseFaith: template?.baseFaith ?? baseFaith ?? 10,
       createdBy: user.userId,
       characterClassId: characterClassId
     });
 
     await repo.save(character);
+
+    if (template) {
+      const student = findStudent(characterClassId);
+      if (student) await grantItemToCharacter(character.id, student.starterItemId);
+    }
+
     return res.status(201).json(character);
   } catch (err) {
     console.error("CREATE CHARACTER ERROR:", err);
@@ -93,6 +110,26 @@ export async function getAllCharacters(req: AuthRequest, res: Response) {
   }
 }
 
+// GET /api/character/mine
+export async function getMyCharacters(req: AuthRequest, res: Response) {
+  try {
+    const user = req.user;
+    if (!user?.userId) {
+      return res.status(401).json({ message: "Unauthorized: No user found in token" });
+    }
+
+    const characters = await AppDataSource.getRepository(Character).find({
+      where: { createdBy: user.userId },
+      relations: ["characterClass", "items", "items.item"],
+    });
+
+    return res.json(characters.map(withCalculatedStats));
+  } catch (err) {
+    console.error("GET MY CHARACTERS ERROR:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 // GET /api/character/:id
 export async function getCharacterById(req: AuthRequest, res: Response) {
   try {
@@ -114,34 +151,11 @@ export async function getCharacterById(req: AuthRequest, res: Response) {
 
     if (!character) return res.status(404).json({ message: "Character not found" });
 
-    if (!user || user.role !== 'GameMaster' && character.createdBy !== user.userId) {
-      return res.status(403).json({ message: "Access denied" });
+    if (!user?.userId) {
+      return res.status(401).json({ message: "Unauthorized: No user found in token" });
     }
 
-    let strength = character.baseStrength;
-    let agility = character.baseAgility;
-    let intelligence = character.baseIntelligence;
-    let faith = character.baseFaith;
-
-    if (character.items && character.items.length > 0) {
-      character.items.forEach(charItem => {
-        if (charItem.item) {
-          strength += charItem.item.bonusStrength || 0;
-          agility += charItem.item.bonusAgility || 0;
-          intelligence += charItem.item.bonusIntelligence || 0;
-          faith += charItem.item.bonusFaith || 0;
-        }
-      });
-    }
-
-    const result = { 
-      ...character, 
-      strength, 
-      agility, 
-      intelligence, 
-      faith,
-  calculatedStats: { strength, agility, intelligence, faith } 
-};
+    const result = withCalculatedStats(character);
 
     await redisClient.setEx(cacheKey, 3600, JSON.stringify(result));
 

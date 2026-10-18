@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./modules/auth/auth.routes";
 import { initializeDB } from "./config/db";
@@ -7,6 +8,7 @@ import { initializeDB } from "./config/db";
 dotenv.config();
 
 const app = express();
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173" }));
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);

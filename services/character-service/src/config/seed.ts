@@ -1,6 +1,7 @@
 import { AppDataSource } from "./db";
 import { CharacterClass } from "../entities/CharacterClass";
 import { Item } from "../entities/Item";
+import { ACTIVIST_CLASS, GAME_ITEMS, STUDENT_CLASSES } from "./gameTemplates";
 
 export async function seedDatabase() {
   console.log("SEED: Starting..."); 
@@ -39,5 +40,36 @@ export async function seedDatabase() {
       }
     ]);
   }
+
+  const studentClasses = [...STUDENT_CLASSES, ACTIVIST_CLASS];
+  for (const studentClass of studentClasses) {
+    const exists = await classRepo.findOneBy({ name: studentClass.name });
+    if (!exists) {
+      await classRepo.insert({
+        id: studentClass.id,
+        name: studentClass.name,
+        description: studentClass.description,
+      });
+    } else if (exists.description !== studentClass.description) {
+      exists.description = studentClass.description;
+      await classRepo.save(exists);
+    }
+  }
+
+  for (const gameItem of GAME_ITEMS) {
+    const exists = await itemRepo.findOneBy({ name: gameItem.name });
+    if (!exists) {
+      await itemRepo.insert({
+        id: gameItem.id,
+        name: gameItem.name,
+        description: gameItem.description,
+        bonusStrength: gameItem.bonusStrength ?? 0,
+        bonusAgility: gameItem.bonusAgility ?? 0,
+        bonusIntelligence: gameItem.bonusIntelligence ?? 0,
+        bonusFaith: gameItem.bonusFaith ?? 0,
+      });
+    }
+  }
+
   console.log("SEED: Finished!");
 }

@@ -39,6 +39,7 @@ export class Duel {
   @Column({ type: "timestamp", nullable: true }) lastAttackAt!: Date;
   @Column({ type: "timestamp", nullable: true }) lastCastAt!: Date;
   @Column({ type: "timestamp", nullable: true }) lastHealAt!: Date;
+  @Column({ type: "timestamp", nullable: true }) lastEnemyActionAt!: Date;
 
   @Column({ default: "IN_PROGRESS" })
   status!: string;

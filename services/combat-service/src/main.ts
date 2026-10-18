@@ -1,13 +1,15 @@
 import "reflect-metadata";
 import express from "express";
+import cors from "cors";
 import * as dotenv from "dotenv";
-import { AppDataSource, initializeDB } from "./config/db";
+import { initializeDB } from "./config/db";
 import combatRoutes from "./modules/combat/combat.routes";
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173" }));
 app.use(express.json());
 
 // Routes

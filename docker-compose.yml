@@ -27,7 +27,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432"    
+      - "${COMBAT_DB_PORT:-5433}:5432"    
 
   redis:
     image: redis:7
@@ -81,3 +81,22 @@ services:
     depends_on:
       - combat-db
       - redis
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: student-list-web
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_ACCOUNT_URL: http://localhost:3001
+      VITE_CHARACTER_URL: http://localhost:3002
+      VITE_COMBAT_URL: http://localhost:3003
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+    depends_on:
+      - account-service
+      - character-service
+      - combat-service

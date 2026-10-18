@@ -110,6 +110,23 @@ export async function getItemDetails(req: AuthRequest, res: Response) {
   }
 }
 
+export async function grantItemToCharacter(characterId: string, itemId: string): Promise<void> {
+  const charRepo = AppDataSource.getRepository(Character);
+  const itemRepo = AppDataSource.getRepository(Item);
+  const charItemRepo = AppDataSource.getRepository(CharacterItem);
+
+  const character = await charRepo.findOneBy({ id: characterId });
+  const item = await itemRepo.findOneBy({ id: itemId });
+
+  if (!character || !item) {
+    throw new Error("Character or Item not found");
+  }
+
+  const newItem = charItemRepo.create({ character, item });
+  await charItemRepo.save(newItem);
+  await redisClient.del(`character:${characterId}`);
+}
+
 // POST /api/items/grant
 export async function grantItem(req: AuthRequest, res: Response) {
   try {
@@ -119,23 +136,12 @@ export async function grantItem(req: AuthRequest, res: Response) {
       return res.status(400).json({ message: "characterId and itemId are required" });
     }
 
-    const charRepo = AppDataSource.getRepository(Character);
-    const itemRepo = AppDataSource.getRepository(Item);
-    const charItemRepo = AppDataSource.getRepository(CharacterItem);
-
-    const character = await charRepo.findOneBy({ id: characterId });
-    const item = await itemRepo.findOneBy({ id: itemId });
-
-    if (!character || !item) return res.status(404).json({ message: "Character or Item not found" });
-
-    const newItem = charItemRepo.create({ character, item });
-    await charItemRepo.save(newItem);
-
-    // IMPORTANT: Invalidate the character cache in Redis as stats have changed
-    await redisClient.del(`character:${characterId}`);
-
+    await grantItemToCharacter(characterId, itemId);
     return res.status(201).json({ message: "Item granted successfully" });
   } catch (err) {
+    if (err instanceof Error && err.message === "Character or Item not found") {
+      return res.status(404).json({ message: err.message });
+    }
     console.error("GRANT ITEM ERROR:", err);
     return res.status(500).json({ message: "Internal server error" });
   }

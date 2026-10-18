@@ -4,15 +4,19 @@ import dotenv from "dotenv";
 import { connectRedis} from "./config/redis";
 import { AppDataSource } from "./config/db";
 import { seedDatabase } from "./config/seed";
+import cors from "cors";
 import characterRoutes from "./modules/character/character.routes";
+import classRoutes from "./modules/character/class.routes";
 import itemRoutes from "./modules/item/item.routes";
 
 dotenv.config();
 
 const app = express();
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173" }));
 app.use(express.json());
 
 app.use("/api/character", characterRoutes);
+app.use("/api/classes", classRoutes);
 app.use("/api/items", itemRoutes);
 app.get("/health", (_req, res) => res.json({ service: "character-service", status: "ok" }));
 

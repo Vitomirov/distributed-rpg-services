@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { challenge, attack, cast, heal } from "./combat.controller";
+import { challenge, attack, cast, heal, enemyTurn } from "./combat.controller";
 import { jwtMiddleware } from "../../middlewares/jwt.middleware";
 
 const router = Router();
@@ -15,5 +15,8 @@ router.post("/:duelId/cast", jwtMiddleware, cast);
 
 // Endpoint for healing action (2s cooldown)
 router.post("/:duelId/heal", jwtMiddleware, heal);
+
+// Activist step. Uses its own cooldown so it does not block the student's buttons.
+router.post("/:duelId/enemy-turn", jwtMiddleware, enemyTurn);
 
 export default router;
